@@ -1,0 +1,150 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Dashboard</title>
+
+    <link href="/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/DashboardEstilo.css" rel="stylesheet" />
+
+    <script src="/Scripts/jquery-1.9.1.js"></script>
+    <script src="/Scripts/bootstrap.js"></script>
+
+    <!-- Flot -->
+    <script src="/Content/flot/jquery.flot.js"></script>
+    <script src="/Content/flot/jquery.flot.tooltip.min.js"></script>
+    <script src="/Content/flot/jquery.flot.resize.js"></script>
+    <script src="/Content/flot/jquery.flot.pie.js"></script>
+    <script src="/Content/flot/jquery.flot.time.js"></script>
+
+</head>
+<body>
+    <div>
+        <div>
+            <img src="~/Content/imagens/aleff.png" /> 
+            <br />
+            <strong>Log System</strong>
+        </div>
+        <div onclick="$('.menu-conteudo').toggleClass('menu-conteudo-aparecer');">
+            <span>A</span>
+            <span id="usuario">Anderson</span> <img src="~/Content/imagens/caret-down.png" />
+            <div class="menu-conteudo" onclick="logoff()">
+                <p>Logoff</p>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div>
+            <div id="grafico" style="width:100%; height:300px"></div>
+            <h1>Nenhum registro de log até o momento!</h1>
+
+            <table style="visibility:hidden">
+                <thead>
+                    <tr>
+                        <td>Data e Hora</td>
+                        <td>Usuário</td>
+                        <td>IP</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @*Dados de Logs*@
+                </tbody>
+            </table>
+
+
+        </div>
+    </div>
+
+
+
+
+    <script>
+        var host_api = 'https://localhost:44376/api/';
+        verificaSessao();
+
+        $(document).ready(function () {
+            carregaLogs();
+            carregaLogsGrafico();
+        });
+
+        function verificaSessao() {
+            if (localStorage.getItem("token") == null) {
+                window.location.replace('/Login');
+            } else {
+                $.post(host_api + 'Login/VerificaSessao?prToken=' + localStorage.getItem("token"), {}, function (res) {
+                    if (res.Sucesso) {
+                        if (!res.Dados.sessaoValida) {
+                            window.location.replace('/Login');
+                        } else {
+                            document.querySelectorAll('body > div:nth-child(1) > div:nth-child(2) > span')[0].innerHTML = res.Dados.usuario.substring(0, 1);
+                            document.querySelectorAll('body > div:nth-child(1) > div:nth-child(2) > span:nth-child(2)')[0].innerHTML = res.Dados.usuario;
+                        }
+                    }
+                });
+            }
+        }
+
+        function carregaLogs() {
+            $.post(host_api + 'Log/ListarLog?prtoken=' + localStorage.getItem('token'), {}, function (res) {
+                var logs = res.Dados;
+                if (logs.length > 0) {
+                    var tbody = document.querySelectorAll('body > div:nth-child(2) > div > table > tbody')[0];
+                    var h1 = document.querySelectorAll('body > div:nth-child(2) > div > h1')[0];
+                    tbody.innerHTML = "";
+                    for (var i = 0; i < logs.length; i++) {
+                        var tr = document.createElement('tr');
+                        
+                        var td1 = document.createElement('td')
+                        var td2 = document.createElement('td')
+                        var td3 = document.createElement('td')
+
+                        td1.innerHTML = logs[i].DataHora;
+                        td2.innerHTML = logs[i].Usuario;
+                        td3.innerHTML = logs[i].ip;
+
+                        tr.appendChild(td1);
+                        tr.appendChild(td2);
+                        tr.appendChild(td3);
+
+                        tbody.appendChild(tr);
+
+                        h1.style = "visibility:hidden";
+                        document.querySelectorAll('body > div:nth-child(2) > div > table')[0].style = 'visibility:visible';
+                    }
+                }
+            });
+        }
+
+        function carregaLogsGrafico() {
+            $.post(host_api + '/Log/BuscarDadosGrafico?prToken=' + localStorage.getItem('token'), {}, function (res) {
+                var dados = [];
+
+                for (var i = 0; i < 24; i++) {
+                    dados.push([res.Dados[i].timeMili, res.Dados[i].quantidade]);
+                }
+
+                $.plot($("#grafico"), [dados], {
+                    xaxis: {
+                        mode: "time",
+                        timeBase: "milliseconds",
+                        timeformat: "%H:00",
+                        min: 24
+                    }
+                })
+            });
+        }
+
+        function logoff() {
+            $.post(host_api + 'Login/Logoff?prtoken=' + localStorage.getItem('token'), {}, function () {
+                window.location.replace('/Login');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+﻿body {
+    background-image: url('imagens/estrada.jpg');
+    background-size: cover;
+}
+
+#painel_login {
+    margin-top: 30%;
+    border-radius: 15px;
+}
+
+    #painel_login > div.panel-body > div:nth-child(2) {
+        padding: 20px;
+    }
+
+        #painel_login > div.panel-body > div:nth-child(2) > div > div > * {
+            width: 100%;
+            font-size: 16px;
+        }
+
+        #painel_login > div.panel-body > div:nth-child(2) > div > div > label {
+            margin-top: 10px;
+        }
+
+    #painel_login > div > div:nth-child(3) > div {
+        text-align: center;
+    }
+
+#mensagens {
+    padding: 20px;
+    display: none;
+    margin-top: 20px;
+    border-radius: 15px;
+}
+
+    #mensagens > div {
+        font-weight: bolder;
+        text-align: center;
+    }
+
+#btn_login {
+    border-radius: 5px;
+    width: 20%;
+    background-color: #ff6a00;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.alerta {
+    display: block !important;
+    background-color: #ffed87;
+}
+
+.erro {
+    display: block !important;
+    background-color: #ff7d7d;
+}

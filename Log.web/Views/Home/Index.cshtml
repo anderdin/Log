@@ -1,0 +1,39 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div>
+    </div>
+
+    <script src="/Scripts/jquery-1.9.1.js"></script>
+    <script>
+        var host_api = 'https://localhost:44376/api/';
+        verificaSessao();
+
+        function verificaSessao() {
+            if (localStorage.getItem("token") == null) {
+                window.location.replace('/Login');
+            } else {
+                $.post(host_api + 'Login/VerificaSessao?prToken=' + localStorage.getItem("token"), {}, function (res) {
+                    if (res.Sucesso) {
+                        if (!res.Dados.sessaoValida) {
+                            window.location.replace('/Login');
+                        } else {
+                            window.location.replace('/Dashboard');
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

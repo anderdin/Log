@@ -1,0 +1,103 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+
+    <link href="/Content/bootstrap.css" rel="stylesheet" />
+    <link href="/Content/LoginEstilo.css" rel="stylesheet" />
+
+    <script src="/Scripts/jquery-1.9.1.js"></script>
+    <script src="/Scripts/bootstrap.js"></script>
+</head>
+<body>
+    <div class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="panel panel-default" id="painel_login">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <img src="~/Content/imagens/aleff.png" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label for="email">Email:</label>
+                                <input type="text" id="txt_email" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label for="senha">Senha:</label>
+                                <input type="password" id="txt_senha" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12" id="">
+                            <button type="button" id="btn_login" onclick="logon()">Login</button>
+                        </div>
+                    </div>
+                    <div class="row" id="mensagens">
+                        <div class="col-lg-12">
+                            Teste de mensagem
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4"></div>
+    </div>
+
+
+    <script>
+        var host_api = 'https://localhost:44376/api/';
+
+        function logon() {
+            var email = document.querySelectorAll('#txt_email')[0].value;
+            var senha = document.querySelectorAll('#txt_senha')[0].value;
+            var chamadaValida = true;
+            var textoDeAlerta = "";
+
+            document.querySelectorAll('#mensagens')[0].classList.remove('alerta');
+            document.querySelectorAll('#mensagens')[0].classList.remove('erro');
+            document.querySelectorAll('#mensagens > div')[0].innerHTML = textoDeAlerta;
+
+            if (email == "" || senha == "") {
+                chamadaValida = false;
+                textoDeAlerta = "Campos de email e senha devem ser preechidos";
+            } else {
+                if (email.indexOf('@@') == -1) {
+                    chamadaValida = false;
+                    textoDeAlerta = "Email esta com formato invalido!";
+                }
+            }
+
+            if (!chamadaValida) {
+                document.querySelectorAll('#mensagens')[0].classList.add('alerta');
+                document.querySelectorAll('#mensagens > div')[0].innerHTML = textoDeAlerta;
+            } else {
+                $.post(host_api + 'Login/Logon', { login: email, senha: senha }, function (res) {
+                    if (res.Sucesso) {
+                        if (res.Dados.LoginSucesso) {
+                            localStorage.setItem("token", res.Dados.Token);
+                            window.location.href = '/Dashboard';
+                        } else {
+                            document.querySelectorAll('#mensagens')[0].classList.add('erro');
+                            document.querySelectorAll('#mensagens > div')[0].innerHTML = res.Mensagem;
+                        }
+                    }
+                })
+            }
+        }
+    </script>
+</body>
+</html>
